@@ -7,7 +7,8 @@ from sklearn.linear_model import Ridge
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import StackingRegressor
 from flask import Flask, request, jsonify, render_template
-import numpy as np 
+import numpy as np
+import os
 
 # Tải dữ liệu
 data = fetch_california_housing()
@@ -127,5 +128,7 @@ def predict():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
 
