@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/btl1.py",
+      "src": "btl1.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "api/btl1.py"
+      "dest": "btl1.py"
     }
   ]
 }
