@@ -2,15 +2,10 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/bt11.py",
+      "src": "./bt11.py",
       "use": "@vercel/python",
       "config": { "runtime": "python3.9" }
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "api/bt11.py"
-    }
-  ]
+  "rewrite": [{ "source": "/predict(.*)", "destination": "/" }]
 }
