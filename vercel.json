@@ -6,5 +6,5 @@
       "use": "@vercel/python"
     }
   ],
-  "rewrite": [{ "source": "/(.*)", "destination": "/" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }
