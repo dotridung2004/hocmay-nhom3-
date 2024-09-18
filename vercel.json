@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "./btl1.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "rewrite": [{ "source": "/(.*)", "destination": "/" }]
+}
