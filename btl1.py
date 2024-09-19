@@ -8,7 +8,6 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import StackingRegressor
 from flask import Flask, request, jsonify, render_template
 import numpy as np
-import os
 
 # Tải dữ liệu
 data = fetch_california_housing()
