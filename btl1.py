@@ -6,12 +6,11 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import Ridge
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import StackingRegressor
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, render_template
 import numpy as np
 
 # Tải dữ liệu
 data = fetch_california_housing()
-print(data)
 X = data.data #lưu trữ ma trận dữ liệu đầu vào
 y = data.target #lưu trữ đầu ra dữ liệu
 
