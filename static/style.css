@@ -50,6 +50,13 @@ input[type="text"] {
   box-sizing: border-box;
   font-size: 14px;
 }
+select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
 
 /* Định dạng cho nút "Dự đoán" */
 button[type="submit"] {
@@ -73,8 +80,7 @@ button[type="submit"]:hover {
 h3 {
   text-align: center;
   color: #333;
-  margin-left: 200px;
-  margin-top: -150px;
+  margin-top: 50px;
 }
 
 /* Responsive - Khi màn hình nhỏ hơn 600px */

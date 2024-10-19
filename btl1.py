@@ -6,8 +6,9 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import Ridge
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import StackingRegressor
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template,flash
 import numpy as np
+import os;
 
 # Tải dữ liệu
 data = fetch_california_housing()
@@ -35,8 +36,6 @@ mse_linear = mean_squared_error(y_test, y_pred_linear) #đo lường sai số b�
 rmse_linear = mse_linear ** 0.5 #thể hiện sai số với cùng đơn vị như biến mục tiêu
 r2_linear = r2_score(y_test, y_pred_linear) #đánh giá mức độ mà mô hình giải thích được phương sai của biến mục tiêu, càng gần 1 càng tốt
 
-print(f'Linear Regression - MSE: {mse_linear}, RMSE: {rmse_linear}, R²: {r2_linear}')
-
 # Huấn luyện mô hình Ridge
 ridge_model = Ridge(alpha=1.0) 
 ridge_model.fit(X_train, y_train)
@@ -48,8 +47,6 @@ y_pred_ridge = ridge_model.predict(X_test)
 mse_ridge = mean_squared_error(y_test, y_pred_ridge)
 rmse_ridge = mse_ridge ** 0.5
 r2_ridge = r2_score(y_test, y_pred_ridge)
-
-print(f'Ridge Regression - MSE: {mse_ridge}, RMSE: {rmse_ridge}, R²: {r2_ridge}')
 
 # Huấn luyện mô hình MLPRegressor
 # hidden_layyer_sizes :Xác định số lượng nơ-ron trong các tầng ẩn. Ở đây, có một tầng ẩn với 100 nơ-ron
@@ -65,8 +62,6 @@ y_pred_mlp = mlp_model.predict(X_test)
 mse_mlp = mean_squared_error(y_test, y_pred_mlp)
 rmse_mlp = mse_mlp ** 0.5
 r2_mlp = r2_score(y_test, y_pred_mlp)
-
-print(f'MLP Regressor - MSE: {mse_mlp}, RMSE: {rmse_mlp}, R²: {r2_mlp}')
 
 # Khởi tạo các mô hình cơ bản
 estimators = [
@@ -89,12 +84,11 @@ mse_stacking = mean_squared_error(y_test, y_pred_stacking)
 rmse_stacking = mse_stacking ** 0.5
 r2_stacking = r2_score(y_test, y_pred_stacking)
 
-print(f'Stacking - MSE: {mse_stacking}, RMSE: {rmse_stacking}, R²: {r2_stacking}')
-
 app = Flask(__name__)
 # Tải mô hình đã huấn luyện (ở đây dùng stacking model)
 model = stacking_model
 scaler = scaler
+app.secret_key = os.urandom(24)
 
 # Giao diện người dùng
 @app.route('/')
@@ -104,25 +98,48 @@ def home():
 # Dự đoán từ dữ liệu người dùng nhập
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Lấy dữ liệu từ form nhập
-    features = [float(x) for x in request.form.values()]
-    final_features = np.array(features).reshape(1, -1)
-    final_features = scaler.transform(final_features)
-    # Dự đoán kết quả
-    prediction = model.predict(final_features)
-    prediction_linear = linear_model.predict(final_features)[0]
-    prediction_ridge = ridge_model.predict(final_features)[0]
-    prediction_mlp = mlp_model.predict(final_features)[0]
-    prediction_stacking = stacking_model.predict(final_features)[0]
-    # Kết quả trả về
-    return render_template(
-    'index.html', 
-    prediction_text=f'Giá nhà dự đoán: ${prediction[0]:.2f}',
-    prediction_text_linear=f'Giá nhà dự đoán (Linear Regression): ${prediction_linear:.2f}',
-    prediction_text_ridge=f'Giá nhà dự đoán (Ridge Regression): ${prediction_ridge:.2f}',
-    prediction_text_mlp=f'Giá nhà dự đoán (MLP Regressor): ${prediction_mlp:.2f}',
-    prediction_text_stacking=f'Giá nhà dự đoán (Stacking Regressor): ${prediction_mlp:.2f}'
-)
+    try:
+        # Lấy dữ liệu từ form nhập
+        form_values = request.form.values()  # Lấy tất cả giá trị từ form
+        features = [float(x) for x in list(form_values)[:-1]]  # Bỏ đi phần tử cuối cùng là chuỗi 'ridge', 'mlp', etc.
+        final_features = np.array(features).reshape(1, -1)
+        final_features = scaler.transform(final_features)
+
+        # Lấy mô hình đã chọn từ form
+        selected_model = request.form['model']
+
+        # Dự đoán kết quả
+        if selected_model == 'linear':
+            prediction = linear_model.predict(final_features)[0]
+            model_name = "Linear Regression"
+            mse = mse_linear
+            rmse = rmse_linear
+            r2 = r2_linear
+        elif selected_model == 'ridge':
+            prediction = ridge_model.predict(final_features)[0]
+            model_name = "Ridge Regression"
+            mse = mse_ridge
+            rmse = rmse_ridge
+            r2 = r2_ridge
+        elif selected_model == 'mlp':
+            prediction = mlp_model.predict(final_features)[0]
+            model_name = "Neural Network"
+            mse = mse_mlp
+            rmse = rmse_mlp
+            r2 = r2_mlp
+        elif selected_model == 'stacking':
+            prediction = stacking_model.predict(final_features)[0]
+            model_name = "Stacking Regressor"
+            mse = mse_stacking
+            rmse = rmse_stacking
+            r2 = r2_stacking
+
+        # Trả về kết quả dự đoán
+        return render_template('index.html', prediction_text=f'Giá nhà dự đoán ({model_name}): ${prediction:.5f}',mse=f'{mse:.5f}', rmse=f'{rmse:.5f}', r2=f'{r2:.5f}')
+    except ValueError:
+        flash("Vui lòng nhập các giá trị hợp lệ (chỉ nhập số).", "error")
+        return render_template('index.html', prediction_text="Lỗi: Dữ liệu đầu vào không hợp lệ.")
+
 
 if __name__ == "__main__":
     app.run(debug=True)

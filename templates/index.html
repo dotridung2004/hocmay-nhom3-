@@ -23,12 +23,18 @@
       ><input type="text" name="aveoccup" /><br />
       <label>Vĩ độ: </label><input type="text" name="latitude" /><br />
       <label>Kinh độ: </label><input type="text" name="longitude" /><br />
+      <label for="">Mô hình dự đoán</label>
+      <select name="model" required>
+        <option value="linear">Linear Regresstion</option>
+        <option value="ridge">Ridge Regresstion</option>
+        <option value="mlp">Neural Network</option>
+        <option value="stacking">Stacking</option>
+      </select>
       <button type="submit">Dự đoán</button>
+      <h3>{{ prediction_text }}</h3>
+      <h3>MSE:{{ mse }}</h3>
+      <h3>RMSE:{{ rmse }}</h3>
+      <h3>R2:{{ r2 }}</h3>
     </form>
-    <h3>{{ prediction_text }}</h3>
-    <h3>{{ prediction_text_linear }}</h3>
-    <h3>{{ prediction_text_ridge }}</h3>
-    <h3>{{ prediction_text_mlp }}</h3>
-    <h3>{{ prediction_text_stacking }}</h3>
   </body>
 </html>
