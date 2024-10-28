@@ -35,7 +35,10 @@ y_pred_linear = linear_model.predict(X_test)
 mse_linear = mean_squared_error(y_test, y_pred_linear) #đo lường sai số bình phương trung bình giữa giá trị dự đoán và giá trị thực tế
 rmse_linear = mse_linear ** 0.5 #thể hiện sai số với cùng đơn vị như biến mục tiêu
 r2_linear = r2_score(y_test, y_pred_linear) #đánh giá mức độ mà mô hình giải thích được phương sai của biến mục tiêu, càng gần 1 càng tốt
-
+# print("Linear Regression:")
+# print(f"MSE: {mse_linear:.5f}")
+# print(f"RMSE: {rmse_linear:.5f}")
+# print(f"R²: {r2_linear:.5f}\n")
 # Huấn luyện mô hình Ridge
 ridge_model = Ridge(alpha=1.0) 
 ridge_model.fit(X_train, y_train)
@@ -47,6 +50,10 @@ y_pred_ridge = ridge_model.predict(X_test)
 mse_ridge = mean_squared_error(y_test, y_pred_ridge)
 rmse_ridge = mse_ridge ** 0.5
 r2_ridge = r2_score(y_test, y_pred_ridge)
+# print("Ridge Regression:")
+# print(f"MSE: {mse_ridge:.5f}")
+# print(f"RMSE: {rmse_ridge:.5f}")
+# print(f"R²: {r2_ridge:.5f}\n")
 
 # Huấn luyện mô hình MLPRegressor
 # hidden_layyer_sizes :Xác định số lượng nơ-ron trong các tầng ẩn. Ở đây, có một tầng ẩn với 100 nơ-ron
@@ -62,6 +69,10 @@ y_pred_mlp = mlp_model.predict(X_test)
 mse_mlp = mean_squared_error(y_test, y_pred_mlp)
 rmse_mlp = mse_mlp ** 0.5
 r2_mlp = r2_score(y_test, y_pred_mlp)
+# print("MLP Regressor (Neural Network):")
+# print(f"MSE: {mse_mlp:.5f}")
+# print(f"RMSE: {rmse_mlp:.5f}")
+# print(f"R²: {r2_mlp:.5f}\n")
 
 # Khởi tạo các mô hình cơ bản
 estimators = [
@@ -83,6 +94,10 @@ y_pred_stacking = stacking_model.predict(X_test)
 mse_stacking = mean_squared_error(y_test, y_pred_stacking)
 rmse_stacking = mse_stacking ** 0.5
 r2_stacking = r2_score(y_test, y_pred_stacking)
+# print("Stacking Regressor:")
+# print(f"MSE: {mse_stacking:.5f}")
+# print(f"RMSE: {rmse_stacking:.5f}")
+# print(f"R²: {r2_stacking:.5f}\n")
 
 app = Flask(__name__)
 # Tải mô hình đã huấn luyện (ở đây dùng stacking model)
@@ -95,14 +110,24 @@ app.secret_key = os.urandom(24)
 def home():
     return render_template('index.html')
 
-# Dự đoán từ dữ liệu người dùng nhập
+# Tính giá trị trung bình của các thuộc tính trong tập huấn luyện
+feature_means = np.mean(X_train, axis=0)
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         # Lấy dữ liệu từ form nhập
-        form_values = request.form.values()  # Lấy tất cả giá trị từ form
-        features = [float(x) for x in list(form_values)[:-1]]  # Bỏ đi phần tử cuối cùng là chuỗi 'ridge', 'mlp', etc.
-        final_features = np.array(features).reshape(1, -1)
+        form_values = list(request.form.values())[:-1]  # Lấy tất cả giá trị từ form trừ lựa chọn mô hình
+        input_features = []
+
+        # Thay thế giá trị trung bình nếu người dùng để trống bất kỳ trường nào
+        for i, value in enumerate(form_values):
+            if value.strip():  # Nếu giá trị tồn tại và không rỗng
+                input_features.append(float(value))
+            else:  # Nếu để trống, sử dụng giá trị trung bình của thuộc tính đó
+                input_features.append(feature_means[i])
+        
+        final_features = np.array(input_features).reshape(1, -1)
         final_features = scaler.transform(final_features)
 
         # Lấy mô hình đã chọn từ form
@@ -135,10 +160,11 @@ def predict():
             r2 = r2_stacking
 
         # Trả về kết quả dự đoán
-        return render_template('index.html', prediction_text=f'Giá nhà dự đoán ({model_name}): ${prediction:.5f}',mse=f'{mse:.5f}', rmse=f'{rmse:.5f}', r2=f'{r2:.5f}')
+        return render_template('index.html', prediction_text=f'Giá nhà dự đoán ({model_name}): ${prediction:.5f}', mse=f'{mse:.5f}', rmse=f'{rmse:.5f}', r2=f'{r2:.5f}')
     except ValueError:
         flash("Vui lòng nhập các giá trị hợp lệ (chỉ nhập số).", "error")
         return render_template('index.html', prediction_text="Lỗi: Dữ liệu đầu vào không hợp lệ.")
+
 
 
 if __name__ == "__main__":
