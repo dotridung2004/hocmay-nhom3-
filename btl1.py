@@ -5,7 +5,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import Ridge
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import StackingRegressor
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 from flask import Flask, request, render_template,flash
 import numpy as np
@@ -34,13 +34,13 @@ linear_model.fit(X_train, y_train) #Huấn luyện mô hình để tìm mối qu
 y_pred_linear = linear_model.predict(X_test)
 
 # Mô hình
-# plt.figure(figsize=(10, 6))
-# plt.scatter(y_test, y_pred_linear, color='blue', alpha=0.5)
-# plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
-# plt.xlabel("Giá trị thực tế")
-# plt.ylabel("Giá trị dự đoán")
-# plt.title("Linear Regression: Giá trị thực tế và dự đoán")
-# plt.show()
+plt.figure(figsize=(10, 6))
+plt.scatter(y_test, y_pred_linear, color='blue', alpha=0.5)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
+plt.xlabel("Giá trị thực tế")
+plt.ylabel("Giá trị dự đoán")
+plt.title("Linear Regression: Giá trị thực tế và dự đoán")
+plt.show()
 
 # Đánh giá mô hình
 mse_linear = mean_squared_error(y_test, y_pred_linear) #đo lường sai số bình phương trung bình giữa giá trị dự đoán và giá trị thực tế
