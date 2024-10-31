@@ -5,6 +5,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import Ridge
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import StackingRegressor
+from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 import pandas as pd
 from flask import Flask, request, render_template,flash
